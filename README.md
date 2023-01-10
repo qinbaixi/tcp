@@ -1,2 +1,9 @@
-# tcp
-simpl;e tcp accept
+tcp
+=====
+
+An OTP application
+
+Build
+-----
+
+    $ rebar3 compile
