@@ -29,8 +29,8 @@
 %% @doc Spawns the server and registers the local name (unique)
 -spec(start_link(LSock :: port()) ->
     {ok, Pid :: pid()} | ignore | {error, Reason :: term()}).
-start_link(LSock) ->
-    gen_server:start_link(?MODULE, [LSock], []).
+start_link(Args) ->
+    gen_server:start_link(?MODULE, [Args], []).
 
 %%%===================================================================
 %%% gen_server callbacks
@@ -75,7 +75,7 @@ handle_cast(_Request, State = #state{}) ->
     {noreply, NewState :: #state{}, timeout() | hibernate} |
     {stop, Reason :: term(), NewState :: #state{}}).
 handle_info(tcp_accept, #state{lsock = LSock} = State) ->
-    case gen_tcp:accept(LSock) of
+    case prim_inet:accept(LSock, 10) of
         {ok, Socket} ->
             {ok, Pid} = sup_tcp:start_child(),
             inet:tcp_controlling_process(Socket, Pid),

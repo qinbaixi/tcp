@@ -58,11 +58,11 @@ handle_cast(_Request, State = #state{}) ->
     {noreply, State}.
 
 handle_info(start_listen, State = #state{}) ->
-    {ok, LS} = gen_tcp:listen(?PORT, ?LISTEN_OPTS),
+    {ok, LS} = inet_tcp:listen(?PORT, ?LISTEN_OPTS),
     Rsu = link(LS),
     {ok, Port} = inet:port(LS),
     io:format("prot : ~w ~w ~n", [Port, Rsu]),
-    [sup_accept:start_child(LS) || _ID <- lists:seq(1, ?ACCEPT_NUM)],
+    [sup_accept:start_child([LS, ID]) || ID <- lists:seq(1, ?ACCEPT_NUM)],
     {noreply, State#state{lsock = LS}};
 handle_info(_Info, State = #state{}) ->
     io:format("listener ~p~n", [_Info]),
