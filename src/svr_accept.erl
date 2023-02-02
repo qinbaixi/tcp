@@ -75,7 +75,7 @@ handle_cast(_Request, State = #state{}) ->
     {noreply, NewState :: #state{}, timeout() | hibernate} |
     {stop, Reason :: term(), NewState :: #state{}}).
 handle_info(tcp_accept, #state{lsock = LSock} = State) ->
-    case prim_inet:accept(LSock, 10) of
+    case inet_tcp:accept(LSock, 10) of
         {ok, Socket} ->
             {ok, Pid} = sup_tcp:start_child(),
             inet:tcp_controlling_process(Socket, Pid),

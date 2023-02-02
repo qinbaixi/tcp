@@ -55,7 +55,7 @@ init([]) ->
 
     AChild = #{id => 'svr_accept',
         start => {'svr_accept', start_link, []},
-        restart => permanent,
+        restart => temporary,
         shutdown => 2000,
         type => worker,
         modules => ['svr_accept']},

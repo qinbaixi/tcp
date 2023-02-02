@@ -37,7 +37,7 @@ handle_cast(_Request, State = #state{}) ->
 handle_info({accept, Sock}, State = #state{}) ->
     link(Sock),
     {noreply, State#state{sock = Sock}};
-handle_info({tcp, Socket, Data}, State) ->
+handle_info({tcp, Socket, Data}, #state{sock = Socket} = State) ->
     io:format("recv ~w ~w ~n", [Socket, Data]),
     {noreply, State};
 handle_info({'DOWN', Ref, port, Socket, Reason}, State) ->

@@ -37,7 +37,7 @@
 -record(state, {lsock}).
 
 get_sock() ->
-    gen_tcp:connect(localhost, ?PORT, ?CONNECT_OPTS).
+    inet_tcp:connect(localhost, ?PORT, ?CONNECT_OPTS).
 
 %%%===================================================================
 %%% Spawning and gen_server implementation
@@ -62,7 +62,7 @@ handle_info(start_listen, State = #state{}) ->
     Rsu = link(LS),
     {ok, Port} = inet:port(LS),
     io:format("prot : ~w ~w ~n", [Port, Rsu]),
-    [sup_accept:start_child([LS, ID]) || ID <- lists:seq(1, ?ACCEPT_NUM)],
+    [sup_accept:start_child(LS) || _ID <- lists:seq(1, ?ACCEPT_NUM)],
     {noreply, State#state{lsock = LS}};
 handle_info(_Info, State = #state{}) ->
     io:format("listener ~p~n", [_Info]),
