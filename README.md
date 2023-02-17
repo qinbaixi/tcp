@@ -6,4 +6,8 @@ An OTP application
 Build
 -----
 
-    $ rebar3 compile
+   run compile.bat
+   
+Start
+  run start.bat
+  
