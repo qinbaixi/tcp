@@ -1,6 +1,5 @@
-:: 多线程并行编译，编译速度比较快(只编译vtnemo)
-@ECHO off
 
+@ECHO off
 :: 设置标题
 TITLE compile_game
 
