@@ -35,7 +35,7 @@ init([]) ->
         period => MaxSecondsBetweenRestarts},
     Children = [
         #{id => 'sup_tcp',
-            start => {'sup_tcp', start_link, []},
+            start => {'sup_websock', start_link, []},
             restart => permanent,
             shutdown => 2000,
             type => supervisor,

@@ -5,9 +5,11 @@
 %%% @end
 %%% Created : 09. 1月 2023 15:47
 %%%-------------------------------------------------------------------
--module(svr_tcp).
+-module(svr_websock).
 
 -behaviour(gen_server).
+
+-include("buff.hrl").
 
 -export([start_link/0]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2,
@@ -15,7 +17,7 @@
 
 -define(SERVER, ?MODULE).
 
--record(state, {sock}).
+-record(state, {sock, state = wait, buff = #buff{}}).
 
 %%%===================================================================
 %%% Spawning and gen_server implementation
@@ -36,10 +38,19 @@ handle_cast(_Request, State = #state{}) ->
 
 handle_info({accept, Sock}, State = #state{}) ->
     link(Sock),
-    {noreply, State#state{sock = Sock}};
-handle_info({tcp, Socket, Data}, #state{sock = Socket} = State) ->
-    io:format("recv ~w ~w ~n", [Socket, Data]),
-    {noreply, State};
+    {noreply, State#state{sock = Sock, state = done}};
+handle_info({tcp, Socket, Data}, #state{sock = Socket, state = done, buff = Buff} = State) ->
+    NewBuff = websocket_decode:unpack_data(Data, Buff),
+    End = NewBuff#buff.is_end,
+    if
+        ((NewBuff#buff.opcode =:= 1) orelse (NewBuff#buff.opcode =:= 2)) andalso End ->
+            RespData = websocket_decode:pack_data(NewBuff#buff.payload_data),
+            io:format("~p ~n", [NewBuff#buff.payload_data]),
+            gen_tcp:send(Socket, RespData),
+            {noreply, State#state{buff = #buff{}}};
+        true ->
+            {noreply, State#state{buff = NewBuff}}
+    end;
 handle_info({'DOWN', Ref, port, Socket, Reason}, State) ->
     io:format("recv ~w ~w ~w~n", [Ref, Socket, Reason]),
     {noreply, State};

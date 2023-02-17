@@ -77,9 +77,16 @@ handle_cast(_Request, State = #state{}) ->
 handle_info(tcp_accept, #state{lsock = LSock} = State) ->
     case inet_tcp:accept(LSock, 10) of
         {ok, Socket} ->
-            {ok, Pid} = sup_tcp:start_child(),
-            inet:tcp_controlling_process(Socket, Pid),
-            Pid ! {accept, Socket};
+            receive
+                {tcp, Socket, Data} ->
+                    SecData = websocket_decode:get_seccure_data(Data),
+                    gen_tcp:send(Socket, SecData)
+            after 5000 ->
+                io:format("~p timeout ~n", [Socket])
+            end,
+            {ok, Pid} = sup_websock:start_child(),
+            Pid ! {accept, Socket},
+            inet:tcp_controlling_process(Socket, Pid);
         _ ->
             skip
     end,

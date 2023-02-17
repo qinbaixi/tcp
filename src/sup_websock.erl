@@ -6,7 +6,7 @@
 %%% @end
 %%% Created : 09. 1月 2023 15:44
 %%%-------------------------------------------------------------------
--module(sup_tcp).
+-module(sup_websock).
 
 
 -behaviour(supervisor).
@@ -53,12 +53,12 @@ init([]) ->
         intensity => MaxRestarts,
         period => MaxSecondsBetweenRestarts},
 
-    AChild = #{id => 'svr_tcp',
-        start => {'svr_tcp', start_link, []},
+    AChild = #{id => 'svr_websock',
+        start => {'svr_websock', start_link, []},
         restart => permanent,
         shutdown => 2000,
         type => worker,
-        modules => ['svr_tcp']},
+        modules => ['svr_websock']},
 
     {ok, {SupFlags, [AChild]}}.
 
